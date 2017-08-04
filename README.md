@@ -47,3 +47,11 @@ if($robo->isSuccess($params)) {
   echo 'Yeah payment is successful!';
 }
 ```
+
+
+# Support developer
+If you like my job (plugin) you can send me some $$$ on beer.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/neatek/3)
+
+* Для русских пользователей вы можете использовать ссылку https://neatek.ru/support/ (Yandex деньги)
