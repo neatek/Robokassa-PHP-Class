@@ -1,50 +1,10 @@
 <?php
-/***
-Example:
-
-- Redirect to do payment
-	require_once 'Robokassa.class.php';
-	$passwords = array(
-		"Pass1", 
-		"Pass2", 
-		"Pass3", 
-		"Pass4"
-	);
-	$params = array(
-		"MerchLogin",
-		$passwords, 
-		true // Test or not test (true/false)
-	);
-	$robo = new Robokassa($params);
-	$robo->doRedirect("100", "Description for payment...", 0, array(), 'ru'); // Here 0 is a InvoiceID, array() => 'sh_' params, and IncCurrLabel
-- Check Success
-	require_once 'Robokassa.class.php';
-	$passwords = array(
-		"Pass1", 
-		"Pass2", 
-		"Pass3", 
-		"Pass4"
-	);
-	$params = array(
-		"MerchLogin",
-		$passwords, 
-		true // Test or not test
-	);
-	$robo = new Robokassa($params);
-	if($robo->isSuccess(0)) { // Here 0 is a InvoiceID
-		file_put_contents('results.log', 'Yeah payment is successful!'."\r\n", FILE_APPEND);
-	}
-	else {
-		file_put_contents('results.log', 'Oh no! payment is not successful!'."\r\n", FILE_APPEND);
-	}
-***/
 class Robokassa {
 	protected $MerchLogin = "";
 	protected $Passwords = array();
 	protected $Testing = false;
-	protected $Debug = true; // Here you can enable DEBUG for output in debug.log
+	protected $Debug = true;
 	protected $SHP_params = array();
-
 	function __construct($params) 
 	{
 		if(is_array($params)) 
@@ -92,16 +52,13 @@ class Robokassa {
 		}
 		return md5(trim($sig));
 	}
-
 	function debug($data=array(),$name='') {
 		file_put_contents('debug.log', date('[H:i:s] ').$name."\r\nRESULT:::\r\n".print_r($data,true)."\r\n=====\r\n",FILE_APPEND);
 	}
-
 	function doRedirect( $sum = 100, $desc = '', $invid = 0, $params = array(), $IncCurrLabel = 'ru'  ) {
 		header("X-Redirect: Powered by neatek");
 		header("Location: ".$this->getPayment($sum, $desc, $invid, $params, $IncCurrLabel));
 	}
-
 	function getPayment( $sum = 100, $desc = '', $invid = 0, $params = array(), $IncCurrLabel = 'ru'  ) {
 		$signature = $this->genSig($sum, $invid, $params);
 		$redirect_url = "http://auth.robokassa.ru/Merchant/Index.aspx?MrchLogin=".$this->MerchLogin."&OutSum=".$sum."&InvId=".$invid."&IncCurrLabel=".$IncCurrLabel."&InvDesc=".urlencode($desc) ."&SignatureValue=".$signature;
@@ -118,7 +75,6 @@ class Robokassa {
 		}
 		return $redirect_url;
 	}
-
 	function get_shp_params_request($request = array()) {
 		if(empty($request)) 
 			$request = $_REQUEST;
@@ -139,14 +95,12 @@ class Robokassa {
 
 		return $params;
 	}
-
 	function get_shp_params() {
 		if($this->Debug == true) {
 			$this->debug('GET_SHP_PARAMS: '.print_r($this->SHP_params,true));
 		}
 		return $this->SHP_params;
 	}
-
 	function isSuccess($invid = 0, $params=array()) {
 		if(isset($_REQUEST["OutSum"]) && isset($_REQUEST["InvId"]) && isset($_REQUEST["SignatureValue"]))
 		{
