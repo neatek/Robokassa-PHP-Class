@@ -3,32 +3,43 @@ Very simple and light PHP Class for working with Robokassa.ru ([Author page](htt
 
 1) Creating class:
 ```
-	require_once 'Robokassa.class.php';
-	$passwords = array(
-		"Pass1", 
-		"Pass2", 
-		"Pass3", 
-		"Pass4"
-	);
-	$params = array(
-		"MerchLogin",
-		$passwords, 
-		true // Test or not test (true/false)
-	);
-	$robo = new Robokassa($params);
+require_once 'Robokassa.class.php';
+$passwords = array(
+	"Pass1", 
+	"Pass2", 
+	"Pass3", 
+	"Pass4"
+);
+$params = array(
+	"MerchLogin",
+	$passwords, 
+	'test' => true, // enable test or not
+	'debug' => true // logging into debug.log file
+);
+$robo = new Robokassa($params);
 ```
 2) Get payment link
 ```
-	$robo->doRedirect("100", "Description for payment...", 0, array(), 'ru'); // Here 0 is a InvoiceID, array() => 'sh_' params, and IncCurrLabel
+$robo->doRedirect(
+	"100", // Sum
+	"Description for payment...", // Payment description
+	0, // InvoiceID
+	array(
+		// Here is 'SHP_PARAMS', without 'SHP_'
+		//'param'=>'helloworld'
+	), 
+	'ru' // IncCurrLabel
+);
 ```
 3) Check payment, its really easy.
 ```
-	if($robo->isSuccess(0)) { // Here 0 is a InvoiceID
-		file_put_contents('results.log', 'Yeah payment is successful!'."\r\n", FILE_APPEND);
-	}
-	else {
-		file_put_contents('results.log', 'Oh no! payment is not successful!'."\r\n", FILE_APPEND);
-	}
+if($robo->isSuccess(0)) {
+	$robo->get_shp_params();
+	// payment is successfull
+}
+else {
+	// wrong crc
+}
 ```
 
 # Support developer
