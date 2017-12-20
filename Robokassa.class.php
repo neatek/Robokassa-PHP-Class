@@ -42,7 +42,8 @@ class Robokassa {
 	protected $MerchLogin = "";
 	protected $Passwords = array();
 	protected $Testing = false;
-	protected $Debug = false; // Here you can enable DEBUG for output in debug.log
+	protected $Debug = true; // Here you can enable DEBUG for output in debug.log
+	protected $SHP_params = array();
 
 	function __construct($params) 
 	{
@@ -52,10 +53,18 @@ class Robokassa {
 			if(is_array($params[1])) 
 			{
 				$xx = count($params[1]);
-				for( $x = 0; $x < $xx; $x++ )
+				for( $x = 0; $x < $xx; $x++ ) {
 					$this->Passwords[$x] = (string) $params[1][$x];
+				}
 			}
-			$this->Testing = (bool) $params[2];
+			if(isset($params['test'])) {
+				$this->Testing = (bool) $params['test'];
+			}
+			else $this->Testing = (bool) $params[2];
+			
+			if(isset($params['debug'])) {
+				$this->Debug = (bool) $params['debug'];
+			}
 		}
 	}
 	function genSig($sum, $invid = 0, $params=array(), $check = false) {
@@ -70,7 +79,7 @@ class Robokassa {
 		if(!empty($params))
 		{
 			foreach ($params as $key => $value) {
-				$sig .= ":".$key."=".$value;
+				$sig .= ":shp_".$key."=".urlencode($value);
 			}
 		}
 		if($this->Debug == true) {
@@ -102,20 +111,56 @@ class Robokassa {
 		if(!empty($params))
 		{
 			foreach ($params as $key => $value)
-				$redirect_url .= "&".$key."=".$value;
+				$redirect_url .= "&shp_".$key."=".urlencode($value);
+		}
+		if($this->Debug == true) {
+			$this->debug('PAYMENT_URL: '.$redirect_url."\r\n");
 		}
 		return $redirect_url;
+	}
+
+	function get_shp_params_request($request = array()) {
+		if(empty($request)) 
+			$request = $_REQUEST;
+
+		$params = array();
+		if(!empty($request)) {
+			foreach ($request as $key => $value) {
+				if(strpos($key, 'shp_') !== false) {
+					$x = str_replace('shp_', '', $key);
+					$params[$x] = $value;
+				}
+			}
+		}
+
+		if($this->Debug == true) {
+			$this->debug('WE_GOT_REQUEST_SHP_PARAMS: '.print_r($params, true));
+		}
+
+		return $params;
+	}
+
+	function get_shp_params() {
+		if($this->Debug == true) {
+			$this->debug('GET_SHP_PARAMS: '.print_r($this->SHP_params,true));
+		}
+		return $this->SHP_params;
 	}
 
 	function isSuccess($invid = 0, $params=array()) {
 		if(isset($_REQUEST["OutSum"]) && isset($_REQUEST["InvId"]) && isset($_REQUEST["SignatureValue"]))
 		{
+			if($this->Debug == true) {
+				$this->debug('REQUEST_RESULT_IS_SUCCESS: '.print_r($_REQUEST,true));
+			}
 			$crc = strtoupper($_REQUEST["SignatureValue"]);
-			$my_crc = strtoupper($this->genSig($_REQUEST["OutSum"], $_REQUEST["InvId"], $params, true));
+			$shp_params = $this->get_shp_params_request();
+			$my_crc = strtoupper($this->genSig($_REQUEST["OutSum"], $_REQUEST["InvId"], $shp_params, true));
 			if($this->Debug == true) {
 				$this->debug('GENERATED: '.$my_crc."\r\n".'NEEDED_CRC: '.$crc,'CHECK_CRC');
 			}
 			if(strcmp($my_crc,$crc) == 0) {
+				$this->SHP_params = $shp_params; 
 				return true;
 			}
 		}

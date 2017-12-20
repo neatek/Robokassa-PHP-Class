@@ -8,6 +8,7 @@ $passwords = array(
 $params = array(
 	"MerchLogin",
 	$passwords, 
-	true // test or not test
+	'test' => true,
+	'debug' => true
 );
 $robo = new Robokassa($params);
