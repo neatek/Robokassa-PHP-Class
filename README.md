@@ -34,6 +34,9 @@ $robo->doRedirect(
 	1, // invoice_id
 	array(
 		'param'=>'helloworld' // without shp_
+
+		// you can get this into ResultURL $robo->get_shp_params();
+		'email'=>'email_from_form' 
 	), 
 	'ru' // IncCurrLabel
 );
