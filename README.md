@@ -6,7 +6,7 @@
 Function | What it does
 ------------ | -------------
 $robo = new Robokassa(array("MerchLogin", array('pass1','pass2','pass3','pass4'), 'test'=>true, 'debug'=>true)) | Create class
-$robo->doRedirect($sum = '100', $desc = 'Text', $invid = '0', $shp_params = array(), $IncCurrLabel = 'ru') | Redirect to do payment on Robokassa web-site, __do not use 'shp_' into $shp_params__
+$robo->doRedirect($sum = '100', $desc = 'Text', $invid = '0', $shp_params = array(), $IncCurrLabel = 'ru') | Redirect to do payment on Robokassa web-site, **do not use 'shp_' into $shp_params**
 $robo->isSuccess() | Check if payment successful - params : __no params__.
 $robo->get_shp_params() | You can get all shp_ params without = '_shp' - params: __no params__.
 
