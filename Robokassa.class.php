@@ -28,7 +28,7 @@ class Robokassa {
 			else $pwdkey=$forcepass;
 			$sig = $this->MerchLogin.":".$sum.":".$invid.":".$this->Passwords[$pwdkey];
 		}
-		if(!empty($params)) foreach ($params as $key => $value) $sig .= ":shp_".$key."=".urlencode($value);
+		if(!empty($params)) foreach ($params as $key => $value) $sig .= ":shp_".$key."=".$value;
 		if($this->Debug) if($check) $this->debug($sig." = ".md5(trim($sig)),'CHECK_SIGN');
 		else $this->debug($sig." = ".md5(trim($sig)),'FIRST_CLEAR_SIGNATURE');
 		return md5(trim($sig));
@@ -41,8 +41,9 @@ class Robokassa {
 		header("Location: ".$this->getPayment($sum, $desc, $invid, $params, $IncCurrLabel));
 	}
 	function getPayment( $sum = 100, $desc = '', $invid = '0', $params = array(), $IncCurrLabel = 'ru'  ) {
+		$email = ""; if(isset($params['email'])) $email = $params['email'];
 		$signature = $this->genSig($sum, $invid, $params);
-		$redirect_url = "http://auth.robokassa.ru/Merchant/Index.aspx?MrchLogin=".$this->MerchLogin."&OutSum=".$sum."&InvId=".$invid."&IncCurrLabel=".$IncCurrLabel."&InvDesc=".urlencode($desc) ."&SignatureValue=".$signature;
+		$redirect_url = "http://auth.robokassa.ru/Merchant/Index.aspx?MrchLogin=".$this->MerchLogin."&OutSum=".$sum."&InvId=".$invid."&IncCurrLabel=".$IncCurrLabel."&InvDesc=".urlencode($desc) ."&Encoding=UTF-8&Email=".$email."&SignatureValue=".$signature;
 		if($this->Testing) $redirect_url .= "&isTest=1";
 		if(!empty($params)) foreach ($params as $key => $value) $redirect_url .= "&shp_".$key."=".urlencode($value);
 		if($this->Debug) $this->debug('PAYMENT_URL: '.$redirect_url."\r\n");
