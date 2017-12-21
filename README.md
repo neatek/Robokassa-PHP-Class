@@ -3,12 +3,12 @@
 > Very simple and light PHP Class for working with Robokassa.ru 
 > Author web-site - [https://neatek.ru/](https://neatek.ru/)
 
-Function | Description
+Function | What it does
 ------------ | -------------
-new Robokassa($params) | Create class - params: ("MerchLogin", array('pass1','pass2','pass3','pass4'), 'test'=>true, 'debug'=>true)
-->doRedirect | Redirect to do payment on Robokassa web-site, do not use 'shp_' into $shp_params - params: ($sum = '100', $desc = 'Text', $invid = '0', $shp_params = array(), $IncCurrLabel = 'ru')
-->isSuccess | Check if payment successful - params : no params. Use only in ResultURL.
-->get_shp_params | You can get all shp_ params without = '_shp'
+`$robo->new Robokassa(array("MerchLogin", array('pass1','pass2','pass3','pass4'), 'test'=>true, 'debug'=>true))` | Create class
+`$robo->doRedirect($sum = '100', $desc = 'Text', $invid = '0', $shp_params = array(), $IncCurrLabel = 'ru')` | Redirect to do payment on Robokassa web-site, do not use 'shp_' into $shp_params
+`$robo->isSuccess()` | Check if payment successful - params : __no params__.
+`$robo->get_shp_params()` | You can get all shp_ params without = '_shp' - params: __no params__.
 
 1) Create class
 ```php
