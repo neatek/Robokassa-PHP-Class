@@ -21,24 +21,25 @@ $robo = new Robokassa($params);
 2) Get payment link
 ```
 $robo->doRedirect(
-	"100", // Sum
-	"Description for payment...", // Payment description
-	0, // InvoiceID
+	"100", // outsum
+	"Description for payment...", // payment desc
+	1, // invoice_id
 	array(
-		// Here is 'SHP_PARAMS', without 'SHP_'
-		//'param'=>'helloworld'
+		'param'=>'helloworld' // without shp_
 	), 
 	'ru' // IncCurrLabel
 );
 ```
 3) Check payment, its really easy.
 ```
-if($robo->isSuccess(0)) { // here is 0 - InvoiceID
-	$robo->get_shp_params();
-	// payment is successfull
+// ResultURL
+if($robo->isSuccess()) {
+	// we got shp_ params without shp_
+	$shp_params = $robo->get_shp_params();
+	file_put_contents('results.log', 'Yeah payment is successful!'."\r\n".print_r($shp_params,true), FILE_APPEND);
 }
 else {
-	// wrong crc
+	file_put_contents('results.log', 'Oh no! payment is not successful!'."\r\n", FILE_APPEND);
 }
 ```
 
