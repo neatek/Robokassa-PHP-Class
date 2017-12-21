@@ -1,13 +1,13 @@
 <?php
 require_once '../Robokassa.class.php';
 include 'Robokassa.params.php';
+
 $robo->doRedirect(
-	"100", 
-	"Description for payment...", 
-	0, // InvID
+	"100", // outsum
+	"Description for payment...", // payment desc
+	1, // invoice_id
 	array(
-		// Here is 'SHP_PARAMS', without 'SHP_'
-		//'param'=>'helloworld'
+		'param'=>'helloworld' // without shp_
 	), 
 	'ru' // IncCurrLabel
 );

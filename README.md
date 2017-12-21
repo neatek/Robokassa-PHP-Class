@@ -33,7 +33,7 @@ $robo->doRedirect(
 ```
 3) Check payment, its really easy.
 ```
-if($robo->isSuccess(0)) {
+if($robo->isSuccess(0)) { // here is 0 - InvoiceID
 	$robo->get_shp_params();
 	// payment is successfull
 }

@@ -5,6 +5,7 @@ class Robokassa {
 	protected $Testing = false;
 	protected $Debug = true;
 	protected $SHP_params = array();
+
 	function __construct($params) 
 	{
 		if(is_array($params)) 
@@ -27,21 +28,46 @@ class Robokassa {
 			}
 		}
 	}
-	function genSig($sum, $invid = 0, $params=array(), $check = false) {
+	function genSig($sum, $invid = '0', $params=array(), $check = false, $forcepass = -1) {
+		$pwdkey=0;
 		if($check == false) {
-			if($this->Testing  == true) $sig = $this->MerchLogin.":".$sum.":".$invid.":".$this->Passwords[2];
-			else $sig = $this->MerchLogin.":".$sum.":".$invid.":".$this->Passwords[0];
+			if($forcepass == -1) {
+				if($this->Testing  == true) {
+					$pwdkey=2;
+				}
+				else {
+					$pwdkey=0;
+				}
+			}
+			else {
+				$pwdkey=$forcepass;
+			}
+
+			$sig = $this->MerchLogin.":".$sum.":".$invid.":".$this->Passwords[$pwdkey];
 		}
 		else {
-			if($this->Testing  == true) $sig = $sum.":".$invid.":".$this->Passwords[3];
-			else $sig = $sum.":".$invid.":".$this->Passwords[1];
+			if($forcepass == -1) {
+				if($this->Testing  == true) {
+					$pwdkey=3;
+				}
+				else {
+					$pwdkey=1;
+				}
+			}
+			else {
+				$pwdkey=$forcepass;
+			}
+
+			$sig = $sum.":".$invid.":".$this->Passwords[$pwdkey];
 		}
+
 		if(!empty($params))
 		{
 			foreach ($params as $key => $value) {
 				$sig .= ":shp_".$key."=".urlencode($value);
 			}
 		}
+
 		if($this->Debug == true) {
 			if($check == false) {
 				$this->debug($sig." = ".md5(trim($sig)),'FIRST_CLEAR_SIGNATURE');
@@ -50,21 +76,20 @@ class Robokassa {
 				$this->debug($sig." = ".md5(trim($sig)),'CHECK_SIGN');
 			}
 		}
+
 		return md5(trim($sig));
 	}
 	function debug($data=array(),$name='') {
 		file_put_contents('debug.log', date('[H:i:s] ').$name."\r\nRESULT:::\r\n".print_r($data,true)."\r\n=====\r\n",FILE_APPEND);
 	}
-	function doRedirect( $sum = 100, $desc = '', $invid = 0, $params = array(), $IncCurrLabel = 'ru'  ) {
+	function doRedirect( $sum = 100, $desc = '', $invid = '0', $params = array(), $IncCurrLabel = 'ru'  ) {
 		header("X-Redirect: Powered by neatek");
 		header("Location: ".$this->getPayment($sum, $desc, $invid, $params, $IncCurrLabel));
 	}
-	function getPayment( $sum = 100, $desc = '', $invid = 0, $params = array(), $IncCurrLabel = 'ru'  ) {
+	function getPayment( $sum = 100, $desc = '', $invid = '0', $params = array(), $IncCurrLabel = 'ru'  ) {
 		$signature = $this->genSig($sum, $invid, $params);
 		$redirect_url = "http://auth.robokassa.ru/Merchant/Index.aspx?MrchLogin=".$this->MerchLogin."&OutSum=".$sum."&InvId=".$invid."&IncCurrLabel=".$IncCurrLabel."&InvDesc=".urlencode($desc) ."&SignatureValue=".$signature;
-		if($this->Testing) {
-			$redirect_url .= "&isTest=1";
-		}
+		if($this->Testing) $redirect_url .= "&isTest=1";
 		if(!empty($params))
 		{
 			foreach ($params as $key => $value)
@@ -101,23 +126,34 @@ class Robokassa {
 		}
 		return $this->SHP_params;
 	}
-	function isSuccess($invid = 0, $params=array()) {
+	function compareCRC() {
 		if(isset($_REQUEST["OutSum"]) && isset($_REQUEST["InvId"]) && isset($_REQUEST["SignatureValue"]))
 		{
-			if($this->Debug == true) {
-				$this->debug('REQUEST_RESULT_IS_SUCCESS: '.print_r($_REQUEST,true));
-			}
+			$invid = (string) $_REQUEST['InvId'];
 			$crc = strtoupper($_REQUEST["SignatureValue"]);
 			$shp_params = $this->get_shp_params_request();
-			$my_crc = strtoupper($this->genSig($_REQUEST["OutSum"], $_REQUEST["InvId"], $shp_params, true));
-			if($this->Debug == true) {
-				$this->debug('GENERATED: '.$my_crc."\r\n".'NEEDED_CRC: '.$crc,'CHECK_CRC');
+			for($x=0;$x<=3;$x++) {
+				$gensign=strtoupper($this->genSig($_REQUEST["OutSum"], $invid, $shp_params, true, $x));
+				if($this->Debug == true) {
+					$this->debug('COMPARE_CRC: '.$gensign.' ?= '.$crc);
+				}
+				if(strcmp($gensign,$crc) == 0) {
+					$this->SHP_params = $shp_params; 
+					return true;
+				}
 			}
-			if(strcmp($my_crc,$crc) == 0) {
-				$this->SHP_params = $shp_params; 
+		}
+
+		return false;
+	}
+	function isSuccess() {
+		if(isset($_REQUEST["OutSum"]) && isset($_REQUEST["InvId"]) && isset($_REQUEST["SignatureValue"]))
+		{
+			if($this->compareCRC() == true) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 }
