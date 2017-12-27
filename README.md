@@ -1,4 +1,4 @@
-# ROBOKASSA-PHP-CLASS (2017)
+# ROBOKASSA-PHP-CLASS (Once payment)
 
 > Very simple and light PHP Class for working with Robokassa.ru 
 > Author web-site - [https://neatek.ru/](https://neatek.ru/)
@@ -49,6 +49,58 @@ if($robo->isSuccess()) {
 	$shp_params = $robo->get_shp_params();
 	// your code
 }
+```
+
+# ROBOKASSA-PHP-CLASS (Recurrent payment)
+
+See: ./examples_recurrent, create database and run SQL from readme.txt file, also edit database config in Robokassa.recurrent.class.php
+
+```php
+	include 'Robokassa.params.php';
+	$recurrent = 1; // you can handle it from $_GET or $_POST
+	$shp_params = array(
+		'email'=> trim($_REQUEST['nd_email']), // email from $_GET or $_POST
+		'recurrent' => $recurrent
+	);
+	$robo->doRecurrentRedirect(
+		$_REQUEST['nd_sum'], // data from your form
+		"Описание платежа", 
+		rand(0,99), // invid will be automatic from Database
+		$shp_params,
+		'ru',
+		$recurrent
+	);
+```
+
+ResultURL - check if payment success
+
+```php
+include 'Robokassa.params.php';
+if($robo->isSuccess()) {
+	$shp_params = $robo->get_shp_params();
+	$robo->setPaymentSuccess($_REQUEST['InvId']);
+	$inv_id = (int) $_REQUEST['InvId'];
+	// success payment once & regular
+	if(isset($shp_params['recurrent']) && !empty($shp_params['recurrent'])) {
+		$v = (int) $shp_params['recurrent'];
+		if($v > 0) {
+			// if first recurrent payment
+		}
+	}
+	echo "OK$inv_id\n";
+}
+else {
+	echo "bad sign\n";
+	exit();
+}
+```
+
+Crontab for getting automatic payments
+
+```php
+include 'Robokassa.params.php';
+$robo->doRecurrents();
+echo 'cronjob finished.';
 ```
 
 # Support developer
