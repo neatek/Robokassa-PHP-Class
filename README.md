@@ -28,6 +28,7 @@ $robo = new Robokassa($params);
 ```
 2) Redirect to do payment
 ```php
+require_once 'Robokassa.class.php';
 $robo->doRedirect(
 	"100", // outsum
 	"Description for payment...", // payment desc
@@ -43,6 +44,7 @@ $robo->doRedirect(
 ```
 3) Check payment
 ```php
+require_once 'Robokassa.class.php';
 // ResultURL
 if($robo->isSuccess()) {
 	// we got shp_ params without shp_
@@ -55,27 +57,43 @@ if($robo->isSuccess()) {
 
 See: ./examples_recurrent, create database and run SQL from readme.txt file, also edit database config in Robokassa.recurrent.class.php
 
+Function | What it does
+------------ | -------------
+$robo = new Robokassa(array("MerchLogin", array('pass1','pass2','pass3','pass4'), 'test'=>true, 'debug'=>true)) | Create class
+$robo->doRecurrentRedirect($sum = '100', $desc = 'Text', $invid = '0', $shp_params = array(), $IncCurrLabel = 'ru') | Redirect to do payment on Robokassa web-site, with recurrent support,    **do not use 'shp_' into $shp_params**
+$robo->isSuccess() | Check if payment successful - params : __no params__.
+$robo->get_shp_params() | You can get all shp_ params into ResultURL without = '_shp' - params: __no params__.
+$robo->doRecurrents() | You can get recurrent payments via this function by Crontab */1 every minute
+$recurrent=$robo->getRecurrent($_GET['invid']) | You can get recurrent info about payment
+$robo->cancelRecurrent($invid) | Cancel recurrent payment for Invid
+
 ```php
-	include 'Robokassa.params.php';
-	$recurrent = 1; // you can handle it from $_GET or $_POST
-	$shp_params = array(
-		'email'=> trim($_REQUEST['nd_email']), // email from $_GET or $_POST
-		'recurrent' => $recurrent
-	);
-	$robo->doRecurrentRedirect(
-		$_REQUEST['nd_sum'], // data from your form
-		"Описание платежа", 
-		rand(0,99), // invid will be automatic from Database
-		$shp_params,
-		'ru',
-		$recurrent
-	);
+date_default_timezone_set('Europe/Moscow');
+require_once 'Robokassa.class.php';
+require_once 'Robokassa.recurrent.class.php'; // Extends Robokassa.class.php
+```
+
+```php
+require_once 'Robokassa.params.php';
+$recurrent = 1; // you can handle it from $_GET or $_POST
+$shp_params = array(
+	'email'=> trim($_REQUEST['nd_email']), // email from $_GET or $_POST
+	'recurrent' => $recurrent
+);
+$robo->doRecurrentRedirect(
+	$_REQUEST['nd_sum'], // data from your form
+	"Описание платежа", 
+	rand(0,99), // invid will be automatic from Database
+	$shp_params,
+	'ru',
+	$recurrent
+);
 ```
 
 ResultURL - check if payment success
 
 ```php
-include 'Robokassa.params.php';
+require_once 'Robokassa.params.php';
 if($robo->isSuccess()) {
 	$shp_params = $robo->get_shp_params();
 	$robo->setPaymentSuccess($_REQUEST['InvId']);
@@ -98,7 +116,7 @@ else {
 Crontab for getting automatic payments
 
 ```php
-include 'Robokassa.params.php';
+require_once 'Robokassa.params.php';
 $robo->doRecurrents();
 echo 'cronjob finished.';
 ```
