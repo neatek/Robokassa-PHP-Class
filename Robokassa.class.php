@@ -1,11 +1,29 @@
 <?php
 class Robokassa
 {
+    /**
+     * @var string
+     */
     protected $MerchLogin = "";
-    protected $Passwords  = array();
-    protected $Testing    = false;
-    protected $Debug      = true;
+    /**
+     * @var array
+     */
+    protected $Passwords = array();
+    /**
+     * @var mixed
+     */
+    protected $Testing = false;
+    /**
+     * @var mixed
+     */
+    protected $Debug = true;
+    /**
+     * @var array
+     */
     protected $SHP_params = array();
+    /**
+     * @param $params
+     */
     public function __construct($params)
     {
         if (is_array($params)) {
@@ -29,6 +47,13 @@ class Robokassa
 
         }
     }
+    /**
+     * @param $sum
+     * @param $invid
+     * @param array $params
+     * @param $check
+     * @param false $forcepass
+     */
     public function genSig($sum, $invid = '0', $params = array(), $check = false, $forcepass = -1)
     {
         $pwdkey = 0;
@@ -73,15 +98,34 @@ class Robokassa
 
         return md5(trim($sig));
     }
+    /**
+     * @param array $data
+     * @param $name
+     */
     public function debug($data = array(), $name = '')
     {
         file_put_contents('debug' . date('dmY') . '.log', date('[H:i:s] ') . $name . "\r\nRESULT:::\r\n" . print_r($data, true) . "\r\n=====\r\n", FILE_APPEND);
     }
+    /**
+     * @param $sum
+     * @param $desc
+     * @param $invid
+     * @param array $params
+     * @param $IncCurrLabel
+     */
     public function doRedirect($sum = 100, $desc = '', $invid = '0', $params = array(), $IncCurrLabel = 'ru')
     {
         header("X-Redirect: Powered by neatek");
         header("Location: " . $this->getPayment($sum, $desc, $invid, $params, $IncCurrLabel));
     }
+    /**
+     * @param $sum
+     * @param $desc
+     * @param $invid
+     * @param array $params
+     * @param $IncCurrLabel
+     * @return mixed
+     */
     public function getPayment($sum = 100, $desc = '', $invid = '0', $params = array(), $IncCurrLabel = 'ru')
     {
         $email = "";if (isset($params['email'])) {
@@ -106,6 +150,10 @@ class Robokassa
 
         return $redirect_url;
     }
+    /**
+     * @param array $request
+     * @return mixed
+     */
     public function get_shp_params_request($request = array())
     {
         if (empty($request)) {
@@ -127,6 +175,9 @@ class Robokassa
 
         return $params;
     }
+    /**
+     * @return mixed
+     */
     public function get_shp_params()
     {
         return $this->SHP_params;

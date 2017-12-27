@@ -29,7 +29,10 @@ class RobokassaRecurrent extends Robokassa
     const DB_HOST = 'localhost';
     const DB_NAME = 'your_db_name';
     const DB_USER = 'your_db_user';
-    const DB_PWD  = 'your_db_pass';
+    const DB_PWD  = 'your_db_password';
+    /**
+     * @return mixed
+     */
     private function getConnection()
     {
         try {
@@ -48,6 +51,14 @@ class RobokassaRecurrent extends Robokassa
             echo 'Подключение не удалось: ' . $e->getMessage();
         }
     }
+    /**
+     * @param $sum
+     * @param $desc
+     * @param $invid
+     * @param array           $params
+     * @param $IncCurrLabel
+     * @param $recurrent
+     */
     public function doRecurrentRedirect($sum = 100, $desc = '', $invid = '0', $params = array(), $IncCurrLabel = 'ru', $recurrent = 1)
     {
         $recurrent = (int) $recurrent;
@@ -69,6 +80,16 @@ class RobokassaRecurrent extends Robokassa
         header("X-Redirect: Powered by neatek");
         header("Location: " . $redirect);
     }
+    /**
+     * @param  $sum
+     * @param  $email
+     * @param  $recurrent
+     * @param  false        $redirect_url
+     * @param  $desc
+     * @param  array        $params
+     * @param  $date
+     * @return mixed
+     */
     public function insertPayment($sum = 0.0, $email = '', $recurrent = false, $redirect_url = '', $desc = '', $params = array(), $date = '')
     {
         if (empty($date)) {
@@ -96,6 +117,12 @@ class RobokassaRecurrent extends Robokassa
         ));
         return $conn->lastInsertId();
     }
+    /**
+     * @param  $sum
+     * @param  $prev_invid
+     * @param  $invid
+     * @return mixed
+     */
     public function insertRecurrent($sum = 0.0, $prev_invid = 0, $invid = 0)
     {
         if (empty($date)) {
@@ -112,6 +139,9 @@ class RobokassaRecurrent extends Robokassa
         ));
         return $conn->lastInsertId();
     }
+    /**
+     * @param $invid
+     */
     public function setPaymentSuccess($invid = 0)
     {
         if ($this->Debug) {
@@ -124,6 +154,10 @@ class RobokassaRecurrent extends Robokassa
             'invid' => $invid,
         ));
     }
+    /**
+     * @param $invid
+     * @param $redirect_url
+     */
     public function updateRedirectField($invid = 0, $redirect_url = '')
     {
         $conn = $this->getConnection();
@@ -133,6 +167,9 @@ class RobokassaRecurrent extends Robokassa
             'redirect' => $redirect_url,
         ));
     }
+    /**
+     * @return mixed
+     */
     public function getLatestForRecurrent()
     {
         $conn       = $this->getConnection();
@@ -153,6 +190,9 @@ class RobokassaRecurrent extends Robokassa
         }
         return $payments;
     }
+    /**
+     * @param $invid
+     */
     public function updateLastRecurrent($invid = 0)
     {
         $conn = $this->getConnection();
@@ -166,6 +206,15 @@ class RobokassaRecurrent extends Robokassa
         }
 
     }
+    /**
+     * @param  $sum
+     * @param  $desc
+     * @param  $invid
+     * @param  $prev_invid
+     * @param  array           $params
+     * @param  $IncCurrLabel
+     * @return mixed
+     */
     public function getRecurrentPayment($sum = 100, $desc = '', $invid = '0', $prev_invid = '0', $params = array(), $IncCurrLabel = 'ru')
     {
         $email = "";if (isset($params['email'])) {
@@ -186,10 +235,18 @@ class RobokassaRecurrent extends Robokassa
 
         return $redirect_url;
     }
+    /**
+     * @param array   $data
+     * @param $name
+     */
     public function log_errors($data = array(), $name = '')
     {
         file_put_contents('errors' . date('dmY') . '.log', date('[H:i:s] ') . $name . "\r\nRESULT:::\r\n" . print_r($data, true) . "\r\n=====\r\n", FILE_APPEND);
     }
+    /**
+     * @param  $invid
+     * @return mixed
+     */
     public function getRecurrent($invid = 0)
     {
         $conn  = $this->getConnection();
@@ -204,6 +261,9 @@ class RobokassaRecurrent extends Robokassa
         }
         return null;
     }
+    /**
+     * @param $invid
+     */
     public function cancelRecurrent($invid = 0)
     {
         $invid = (int) $invid;
@@ -214,6 +274,10 @@ class RobokassaRecurrent extends Robokassa
             'invid' => $invid,
         ));
     }
+    /**
+     * @param  $invid
+     * @return mixed
+     */
     public function getRecurrentPrevInvId($invid = 0)
     {
         // get prev invid by autoInvid
