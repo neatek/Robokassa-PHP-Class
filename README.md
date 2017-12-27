@@ -1,7 +1,7 @@
-# ROBOKASSA-PHP-CLASS (Once payment)
-
 > Very simple and light PHP Class for working with Robokassa.ru 
 > Author web-site - [https://neatek.ru/](https://neatek.ru/)
+
+## Robokassa.class.php (Once payment)
 
 Function | What it does
 ------------ | -------------
@@ -53,7 +53,7 @@ if($robo->isSuccess()) {
 }
 ```
 
-# ROBOKASSA-PHP-CLASS (Recurrent payment)
+## Robokassa.recurrent.class.php (Recurrent payment)
 
 See: ./examples_recurrent, create database and run SQL from readme.txt file, also edit database config in Robokassa.recurrent.class.php
 
