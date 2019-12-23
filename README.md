@@ -1,6 +1,8 @@
 > Very simple and light PHP Class for working with Robokassa.ru 
 > Author web-site - [https://neatek.ru/](https://neatek.ru/)
 
+[![HitCount](http://hits.dwyl.io/neatek/Robokassa-PHP-Class.svg)](http://hits.dwyl.io/neatek/Robokassa-PHP-Class)
+
 ## Robokassa.class.php (Once payment)
 
 Function | What it does
